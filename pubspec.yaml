@@ -1,0 +1,12 @@
+name: villenet
+description: VilleNet Decentraliced Smart Contract Computer.
+
+version: 0.0.1
+
+dependencies:
+    pointycastle: ^1.0.2
+    equatable: ^1.1.1
+
+dev_dependencies:
+    test: ^1.14.3
+    mockito: ^4.1.1
