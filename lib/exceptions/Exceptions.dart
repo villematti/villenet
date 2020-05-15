@@ -40,7 +40,31 @@ class SubException extends BaseException {
 }
 
 class MissingValueException extends BaseException {
-  static const String msg =
-      "There has to be two values to make this calculation.";
+  static const String msg = "Missing values in stack.";
   MissingValueException() : super(message: msg);
+}
+
+class MissingConditionCheckException extends BaseException {
+  final String message;
+  MissingConditionCheckException({this.message}) : super(message: message);
+}
+
+class NoDestinationException extends BaseException {
+  static const String msg = "Missing jump destination!";
+  NoDestinationException() : super(message: msg);
+}
+
+class InvalidDestinationException extends BaseException {
+  static const String msg = "Jump destination is out of range!";
+  InvalidDestinationException() : super(message: msg);
+}
+
+class FalseDestinationException extends BaseException {
+  static const String msg = "Unable to jump to given position.";
+  FalseDestinationException() : super(message: msg);
+}
+
+class IncorrectValueException extends BaseException {
+  final String message;
+  IncorrectValueException({this.message}) : super(message: message);
 }

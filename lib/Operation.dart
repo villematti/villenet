@@ -12,4 +12,7 @@ class Operation {
   static const EQ = 'EQ';
   static const AND = 'AND';
   static const OR = 'OR';
+  static const JUMP = 'JUMP';
+  static const JUMP_S = 'JUMP_S';
+  static const JUMP_I = 'JUMP_I';
 }

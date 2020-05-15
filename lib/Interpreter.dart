@@ -40,6 +40,24 @@ class Interpreter {
           case Operation.GT:
             this._onGt();
             break;
+          case Operation.EQ:
+            this._onEq();
+            break;
+          case Operation.AND:
+            this._onAnd();
+            break;
+          case Operation.OR:
+            this._onOr();
+            break;
+          case Operation.JUMP:
+            this._onJump();
+            break;
+          case Operation.JUMP_S:
+            this._onJumpS();
+            break;
+          case Operation.JUMP_I:
+            this._onJumpI();
+            break;
           default:
             throw UnknownMethodException();
         }
@@ -53,18 +71,130 @@ class Interpreter {
         throw DivException(message: errorMessage);
       } on MissingValueException {
         throw MissingValueException();
+      } on InvalidDestinationException {
+        throw InvalidDestinationException();
+      } on IncorrectValueException {
+        throw IncorrectValueException();
       }
 
       state.programCunter++;
     }
   }
 
+  void _onJumpI() {
+    try {
+      int jumpCondition = _getNumFromStack(this.state.stack);
+      if (jumpCondition == 0 || jumpCondition == 1) {
+        state.programCunter++;
+        final jumpTarget = state.code[state.programCunter];
+        if (jumpTarget is! int) {
+          throw InvalidDestinationException();
+        } else if (state.code[state.programCunter + jumpTarget] is! String) {
+          throw FalseDestinationException();
+        }
+
+        if (jumpCondition == 1) {
+          state.programCunter += jumpTarget - 1;
+        }
+      } else {
+        throw IncorrectValueException();
+      }
+    } on RangeError {
+      throw MissingValueException();
+    }
+  }
+
+  void _onJumpS() {
+    try {
+      num val = _getNumFromStack(this.state.stack);
+      int jumpTarget = state.programCunter + val;
+      if (jumpTarget > state.code.length - 1 || jumpTarget < 0) {
+        throw InvalidDestinationException();
+      }
+      if (state.code[jumpTarget] is! String) {
+        throw FalseDestinationException();
+      }
+
+      state.programCunter = jumpTarget - 1;
+    } on RangeError {
+      throw MissingValueException();
+    }
+  }
+
+  void _onJump() {
+    state.programCunter++;
+    final val = state.code[state.programCunter];
+    if (val is int) {
+      if ((state.programCunter + val) > state.code.length - 1) {
+        throw InvalidDestinationException();
+      } else {
+        state.programCunter += val;
+        if (state.code[state.programCunter] is! String) {
+          throw FalseDestinationException();
+        }
+        state.programCunter--;
+      }
+    } else {
+      throw NoDestinationException();
+    }
+  }
+
+  void _checkConditionCheckingFormat(List<dynamic> code) {
+    const validCommands = [Operation.EQ, Operation.GT, Operation.LT];
+    if (code.length < 7) {
+      throw MissingConditionCheckException();
+    }
+    final lastCommand = code[state.programCunter - 1];
+    final previousCommand = code[state.programCunter - 6];
+
+    if (lastCommand is String && previousCommand is String) {
+      if (validCommands.indexOf(lastCommand) == -1 &&
+          validCommands.indexOf(previousCommand) == -1) {
+        throw MissingConditionCheckException();
+      }
+    } else {
+      throw MissingConditionCheckException();
+    }
+  }
+
+  void _onAnd() {
+    _checkConditionCheckingFormat(state.code);
+    if (_getNumFromStack(this.state.stack) == 1 &&
+        _getNumFromStack(this.state.stack) == 1) {
+      this.state.stack.add(1);
+    } else {
+      this.state.stack.add(0);
+    }
+  }
+
+  void _onOr() {
+    _checkConditionCheckingFormat(state.code);
+    if (_getNumFromStack(this.state.stack) == 1 ||
+        _getNumFromStack(this.state.stack) == 1) {
+      this.state.stack.add(1);
+    } else {
+      this.state.stack.add(0);
+    }
+  }
+
+  void _onEq() {
+    try {
+      final val = _getNumFromStack(this.state.stack) ==
+              _getNumFromStack(this.state.stack)
+          ? 1
+          : 0;
+      this.state.stack.add(val);
+    } on RangeError {
+      throw MissingValueException();
+    }
+  }
+
   void _onGt() {
     try {
-      final val =
-          _getFromStack(this.state.stack) > _getFromStack(this.state.stack)
-              ? 1
-              : 0;
+      final val = _getNumFromStack(this.state.stack) >
+              _getNumFromStack(this.state.stack)
+          ? 1
+          : 0;
       this.state.stack.add(val);
     } on RangeError {
       throw MissingValueException();
@@ -73,10 +203,10 @@ class Interpreter {
 
   void _onLt() {
     try {
-      final val =
-          _getFromStack(this.state.stack) < _getFromStack(this.state.stack)
-              ? 1
-              : 0;
+      final val = _getNumFromStack(this.state.stack) <
+              _getNumFromStack(this.state.stack)
+          ? 1
+          : 0;
       this.state.stack.add(val);
     } on RangeError {
       throw MissingValueException();
@@ -85,8 +215,8 @@ class Interpreter {
 
   void _onSub() {
     try {
-      num val1 = _getFromStack(this.state.stack);
-      num val2 = _getFromStack(this.state.stack);
+      num val1 = _getNumFromStack(this.state.stack);
+      num val2 = _getNumFromStack(this.state.stack);
       this.state.stack.add(val1 - val2);
     } on RangeError {
       throw MissingValueException();
@@ -95,8 +225,8 @@ class Interpreter {
 
   void _onDiv() {
     try {
-      num val1 = _getFromStack(this.state.stack);
-      num val2 = _getFromStack(this.state.stack);
+      num val1 = _getNumFromStack(this.state.stack);
+      num val2 = _getNumFromStack(this.state.stack);
       if (val1 == 0 || val2 == 0) {
         errorMessage = "Can't do division with zero!";
         throw DivException();
@@ -107,7 +237,7 @@ class Interpreter {
     }
   }
 
-  num _getFromStack(List<num> stateStack) {
+  num _getNumFromStack(List<num> stateStack) {
     try {
       return stateStack.removeLast();
     } on RangeError {
@@ -117,8 +247,8 @@ class Interpreter {
 
   void _onMul() {
     try {
-      num sum = _getFromStack(this.state.stack);
-      sum *= _getFromStack(this.state.stack);
+      num sum = _getNumFromStack(this.state.stack);
+      sum *= _getNumFromStack(this.state.stack);
       this.state.stack.add(sum);
     } on RangeError {
       throw MissingValueException();
@@ -140,7 +270,7 @@ class Interpreter {
     try {
       num sum = 0;
       for (var x = 0; x < 2; x++) {
-        sum += _getFromStack(this.state.stack);
+        sum += _getNumFromStack(this.state.stack);
       }
       this.state.stack.add(sum);
     } on RangeError {
