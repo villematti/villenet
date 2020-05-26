@@ -2,8 +2,8 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:pointycastle/digests/sha3.dart';
-import 'package:villenet/Interpreter.dart';
-import 'package:villenet/State.dart';
+import 'package:villenet/src/Blockchain.dart';
+import 'package:villenet/src/Interpreter.dart';
 
 main(List<String> args) {
   final code = ['PUSH_INT', 4, 'PUSH_INT', 5, 'ADD', 'STOP'];
@@ -27,4 +27,7 @@ main(List<String> args) {
 
   // final sha = sha3.process(uIntList);
   print(base64encoder.convert(bytes));
+
+  final blockchain = BlockchainImpl();
+  print(blockchain.toJson());
 }

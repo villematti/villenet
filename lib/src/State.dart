@@ -1,4 +1,8 @@
-class State {
+abstract class State {
+  void setCode(List<dynamic> nywCode);
+}
+
+class StateImpl implements State {
   int programCunter = 0;
   List<num> stack = [];
   List<dynamic> code = [];

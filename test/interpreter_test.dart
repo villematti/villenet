@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
-import 'package:villenet/Interpreter.dart';
-import 'package:villenet/exceptions/Exceptions.dart';
+import 'package:villenet/src/Interpreter.dart';
+import 'package:villenet/src/exceptions/Exceptions.dart';
 
 main() {
   Interpreter interpreter;

@@ -1,10 +1,9 @@
 import 'Operation.dart';
 import 'State.dart';
 import 'exceptions/Exceptions.dart';
-import 'package:meta/meta.dart';
 
 class Interpreter {
-  State state = State();
+  StateImpl state = StateImpl();
   String errorMessage;
 
   Interpreter();
