@@ -10,11 +10,11 @@ main() {
   MockBlockHeaders headers;
   setUp(() {
     headers = MockBlockHeaders();
-    block = BlockImpl(headers: headers);
+    block = Block(headers: headers);
   });
 
   final tBeneficiary = "testing-beneficiary";
-  final tDifficulty = 123;
+  final tDifficulty = 1;
   final tNumber = 123;
   final tTimestamp = "testing-timestamp";
   final tNonce = 0;
@@ -43,5 +43,48 @@ main() {
     };
 
     expect(result, equals(expected));
+  });
+
+  test("should return max lenght", () {
+    Block tLastBlock = Block(
+        headers: BlockHeaders(
+            beneficiary: tBeneficiary,
+            difficulty: 1,
+            number: tNumber,
+            timestamp: tTimestamp,
+            nonce: tNonce,
+            parentHash: tParentHash));
+    expect(
+        Block.calculateBlockTargetHash(tLastBlock),
+        equals(
+            'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'));
+  });
+
+  test("should return correct length", () {
+    Block tLastBlock = Block(
+        headers: BlockHeaders(
+            beneficiary: tBeneficiary,
+            difficulty: 123,
+            number: tNumber,
+            timestamp: tTimestamp,
+            nonce: tNonce,
+            parentHash: tParentHash));
+    expect(
+        Block.calculateBlockTargetHash(tLastBlock),
+        equals(
+            '0214d0214d0214e0000000000000000000000000000000000000000000000000'));
+  });
+
+  test("should return with correct lenght", () {
+    Block tLastBlock = Block(
+        headers: BlockHeaders(
+            beneficiary: tBeneficiary,
+            difficulty: 99999999,
+            number: tNumber,
+            timestamp: tTimestamp,
+            nonce: tNonce,
+            parentHash: tParentHash));
+    final result = Block.calculateBlockTargetHash(tLastBlock);
+    expect(result.length, equals(64));
   });
 }

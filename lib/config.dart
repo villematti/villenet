@@ -8,3 +8,7 @@ final GENESIS_DATA = BlockHeaders(
   nonce: 0,
   parentHash: '--GENESIS-PARENT-HASH--',
 );
+
+const HASH_LENGTH = 64;
+final MAX_HASH_VALUE =
+    BigInt.parse(List.filled(HASH_LENGTH, 'f').join(), radix: 16);
